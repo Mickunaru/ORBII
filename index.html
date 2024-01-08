@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas game</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div
+      class="fixed flex justify-center items-center inset-0 text-center"
+      id="modal-el"
+    >
+      <div
+        class="text-white text-4xl bg-black border-solid border-4 border-white"
+        id="role-selection-modal-el"
+      >
+        <h1 class="text-9xl text-extrabold tracking-widest" id="title">
+          ORBII
+        </h1>
+        <p class="mt-10">Choose your role</p>
+        <div class="flex flex-row" id="role-btn-container">
+          <button class="bg-green-500 role-btn" value="Bro">Bro</button>
+          <button class="bg-blue-500 role-btn" value="Triple">
+            Triple Baby
+          </button>
+          <button class="bg-orange-500 role-btn" value="God">G O D</button>
+        </div>
+      </div>
+      <div
+        class="text-white bg-black border-solid border-4 border-white p-5"
+        id="game-over-modal-el"
+        hidden
+      >
+        <h1 id="modal-score" class="text-8xl font-bold text-green-400">0</h1>
+        <p class="text-4xl font-light mb-5">Points</p>
+        <button
+          class="text-5xl font-regular bg-indigo-500 p-2 px-20 rounded-full"
+          id="retry-btn"
+        >
+          Retry ?
+        </button>
+      </div>
+    </div>
+    <div
+      class="fixed flex text-white text-4xl items-center justify-center bg-transparent left-1/2 right-1/2 mt-4"
+    >
+      <span class="mr-3">Score: </span
+      ><span class="text-green-400" id="score">0</span>
+    </div>
+    <canvas></canvas>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"
+      integrity="sha512-EZI2cBcGPnmR89wTgVnN3602Yyi7muWo8y1B3a8WmIv1J9tYG+udH4LvmYjLiGp37yHB7FfaPBo8ly178m9g4Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
