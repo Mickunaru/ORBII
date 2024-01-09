@@ -6,18 +6,20 @@ const gameOverModalEl = document.querySelector('#game-over-modal-el');
 const retryBtn = document.querySelector('#retry-btn');
 const roleSelectModal = document.querySelector('#role-selection-modal-el');
 const roleBtns = document.querySelectorAll('.role-btn');
+const hpIcon = document.querySelector('#hp-icon');
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 const borderWidth = 10;
 
 class Player {
-  constructor(x, y, radius, color, velocity) {
+  constructor(x, y, radius, color, velocity, hp) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
     this.velocity = velocity;
+    this.hp = hp;
   }
 
   draw() {
@@ -86,13 +88,13 @@ class Mob {
 const middleX = canvas.width / 2;
 const middleY = canvas.height / 2;
 
-let player = new Player(middleX, middleY, 15, '#f8fafc', {xl: 0, xr:0, yu: 0, yd: 0});
+let player = new Player(middleX, middleY, 15, '#f8fafc', {xl: 0, xr:0, yu: 0, yd: 0}, 3);
 let projectiles = [];
 let mobs = [];
 let role;
 
 function initialize() {
-  player = new Player(middleX, middleY, 15, '#f8fafc', {xl: 0, xr:0, yu: 0, yd: 0});
+  player = new Player(middleX, middleY, 15, '#f8fafc', {xl: 0, xr:0, yu: 0, yd: 0}, 3);
   projectiles = [];
   mobs = [];
   score = 0;
@@ -107,7 +109,7 @@ function spawnMob() {
     let x;
     let y;
     let radius;
-    let color;
+    let color = `hsl(${Math.round(randVal * 365)}, 50%, 50%)`;
     let velocity;
     if (randVal < 0.5) {
       x = Math.random() < 0.5 ? -50 : canvas.width + 50;
@@ -119,24 +121,21 @@ function spawnMob() {
     const angle = Math.atan2(player.y - y, player.x - x);
     if (randVal < 0.6) {
       radius =  25;
-      color = '#a3e635';
       velocity = {
-        x: Math.cos(angle) * velocityMultiplier,
-        y: Math.sin(angle) * velocityMultiplier
+        x: Math.cos(angle) * 2 * velocityMultiplier,
+        y: Math.sin(angle) * 2 * velocityMultiplier
       }
     } else if (randVal < 0.95) {
       radius =  10;
-      color = '#fbbf24';
       velocity = {
-        x: Math.cos(angle) * 5 * velocityMultiplier,
-        y: Math.sin(angle) * 5 * velocityMultiplier
+        x: Math.cos(angle) * 7 * velocityMultiplier,
+        y: Math.sin(angle) * 7 * velocityMultiplier
       }
     } else {
       radius =  80;
-      color = '#1e1b4b';
       velocity = {
-        x: Math.cos(angle) * 0.66 * velocityMultiplier,
-        y: Math.sin(angle) * 0.66 * velocityMultiplier
+        x: Math.cos(angle) * 1 * velocityMultiplier,
+        y: Math.sin(angle) * 1 * velocityMultiplier
       }
     }
     mobs.push(new Mob(x, y, radius, color, velocity));
@@ -147,6 +146,9 @@ function spawnMob() {
 let score = 0;
 let animateId;
 function animate() {
+  for (let i = 0; i < player.hp; i++) {
+    c.drawImage(hpIcon, i * 40 + 40, 20);
+  }
   animateId = requestAnimationFrame(animate);
   c.fillStyle = 'rgba(0,0,0,0.4)';
   c.fillRect(0, 0, canvas.width, canvas.height);
@@ -172,7 +174,11 @@ function animate() {
 
     const dist = Math.hypot(player.x - mob.x, player.y - mob.y);
     if (dist - player.radius - mob.radius < 0.5) {
-      stopGame();
+      mobs.splice(mIndex, 1);
+      player.hp--;
+      if (player.hp <= 0) {
+        stopGame();
+      }
     }
 
     projectiles.forEach((projectile, pIndex) => {
@@ -187,6 +193,10 @@ function animate() {
           setTimeout(() => {
             mobs.splice(mIndex, 1);
           }, 0);
+          gsap.to(player, {
+            color: mob.color,
+            radius: player.radius + 5
+          })
           score += 100;
         }
         scoreEl.textContent = score;
@@ -201,10 +211,10 @@ function animate() {
 
 
 addEventListener('keydown', (e) => {
-  if (e.key === 'w') player.velocity.yu = -2.5;
-  if (e.key === 'a') player.velocity.xl = -2.5;
-  if (e.key === 's') player.velocity.yd = 2.5;
-  if (e.key === 'd') player.velocity.xr = 2.5;
+  if (e.key === 'w') player.velocity.yu = -3;
+  if (e.key === 'a') player.velocity.xl = -3;
+  if (e.key === 's') player.velocity.yd = 3;
+  if (e.key === 'd') player.velocity.xr = 3;
 })
 
 addEventListener('keyup', (e) => {
@@ -259,9 +269,9 @@ function handleMouseDownTriple(e) {
     x: Math.cos(angle - deg15) * 5,
     y: Math.sin(angle - deg15) * 5
   }
-  projectiles.push(new Projectile(player.x, player.y, 5, 'white', velocity1));
-  projectiles.push(new Projectile(player.x, player.y, 5, 'white', velocity2));
-  projectiles.push(new Projectile(player.x, player.y, 5, 'white', velocity3));
+  projectiles.push(new Projectile(player.x, player.y, 5, player.color, velocity1));
+  projectiles.push(new Projectile(player.x, player.y, 5, player.color, velocity2));
+  projectiles.push(new Projectile(player.x, player.y, 5, player.color, velocity3));
 }
 
 let canShoot = false;
@@ -281,7 +291,7 @@ function handleMouseMoveGod(e) {
       x: Math.cos(angle) * 5,
       y: Math.sin(angle) * 5
     }
-    projectiles.push(new Projectile(player.x, player.y, 5, 'white', velocity));
+    projectiles.push(new Projectile(player.x, player.y, 5, player.color, velocity));
   }
 }
 
